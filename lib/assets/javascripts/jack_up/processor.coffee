@@ -16,9 +16,14 @@ filesWithData = (event) ->
 class @JackUp.Processor
   constructor: (options) ->
     @uploadPath = options.path
+    @maxFileSize = options.maxFileSize
 
   processFilesForEvent: (event) =>
     _.each filesWithData(event), (file) =>
+      if file.size > @maxFileSize
+        @trigger 'constraint:failure', constraint: 'size', event: event, file: file
+        return
+
       reader = new FileReader()
       reader.onload = (event) =>
         @trigger 'upload:dataRenderReady', result: event.target.result, file: file
